@@ -43,3 +43,16 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Docker (não usado)
+docker-compose.yml
+docker-compose.override.yml
+.dockerignore
+
+# Arquivos temporários
+setup.ps1
+INSTALL_NOTES.md
+PROJETO_SUMMARY.md
+SETUP_GUIDE.md
+CHECKLIST_ENTREGA.md
+test_gcp_config.py

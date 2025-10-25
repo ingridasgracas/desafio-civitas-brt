@@ -1,0 +1,65 @@
+# Nome do projeto DBT
+name: 'brt_pipeline'
+version: '1.0.0'
+config-version: 2
+
+# Perfil de conexão (definido em profiles.yml)
+profile: 'brt_pipeline'
+
+# Diretórios do projeto
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Configurações dos modelos
+models:
+  brt_pipeline:
+    # Camada Bronze - Dados brutos (tabelas externas)
+    bronze:
+      +materialized: external
+      +enabled: true
+      +schema: bronze
+      +persist_docs:
+        relation: true
+        columns: true
+    
+    # Camada Silver - Dados limpos e padronizados
+    silver:
+      +materialized: view
+      +enabled: true
+      +schema: silver
+      +persist_docs:
+        relation: true
+        columns: true
+    
+    # Camada Gold - Dados agregados e prontos para consumo
+    gold:
+      +materialized: table
+      +enabled: true
+      +schema: gold
+      +persist_docs:
+        relation: true
+        columns: true
+      +partition_by:
+        field: date_partition
+        data_type: date
+        granularity: day
+
+# Variáveis do projeto
+vars:
+  gcs_bucket: "{{ env_var('GCS_BUCKET_NAME', 'brt-data-civitas') }}"
+  gcs_source_format: 'CSV'
+  start_date: '2025-01-01'
+
+# Testes
+tests:
+  +severity: warn
+  +store_failures: true

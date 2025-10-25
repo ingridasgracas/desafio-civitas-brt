@@ -1,0 +1,45 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# Environment variables
+.env
+
+# Google Cloud credentials
+config/*.json
+!config/config.example.json
+
+# Data files
+data/*.csv
+data/raw/
+data/bronze/
+data/silver/
+data/gold/
+
+# DBT
+dbt_brt/target/
+dbt_brt/dbt_packages/
+dbt_brt/logs/
+
+# Prefect
+.prefect/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/

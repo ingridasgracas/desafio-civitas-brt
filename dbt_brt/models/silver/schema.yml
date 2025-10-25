@@ -1,0 +1,101 @@
+version: 2
+
+models:
+  - name: stg_brt_gps_cleaned
+    description: |
+      ### Camada Silver - Dados GPS BRT Limpos e Padronizados
+      
+      Esta tabela contém dados GPS dos veículos BRT após processos de limpeza e validação.
+      
+      **Transformações aplicadas:**
+      - Remoção de duplicatas
+      - Validação de coordenadas GPS (dentro dos limites do Rio de Janeiro)
+      - Padronização de tipos de dados
+      - Cálculo de campos derivados (data, hora, dia da semana)
+      - Categorização de velocidade
+      - Identificação de período do dia
+      
+      **Qualidade de dados:**
+      - Apenas coordenadas válidas dentro do Rio de Janeiro
+      - Registros únicos por veículo e timestamp de captura
+      
+    columns:
+      - name: vehicle_id
+        description: "Identificador único do veículo BRT"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_of_type:
+              column_type: string
+      
+      - name: line
+        description: "Linha do BRT em operação (ex: BRT Transoeste, BRT Transcarioca)"
+      
+      - name: capture_timestamp
+        description: "Data e hora de captura dos dados pelo pipeline"
+        tests:
+          - not_null
+      
+      - name: gps_timestamp
+        description: "Data e hora do sinal GPS transmitido pelo veículo"
+      
+      - name: latitude
+        description: "Latitude da posição GPS do veículo (WGS84)"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: -23.0
+              max_value: -22.7
+      
+      - name: longitude
+        description: "Longitude da posição GPS do veículo (WGS84)"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: -43.8
+              max_value: -43.1
+      
+      - name: speed_kmh
+        description: "Velocidade instantânea do veículo em km/h"
+        tests:
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+              max_value: 120
+              severity: warn
+      
+      - name: capture_date
+        description: "Data de captura (campo derivado para particionamento)"
+        tests:
+          - not_null
+      
+      - name: capture_hour
+        description: "Hora de captura (0-23)"
+      
+      - name: day_of_week
+        description: "Dia da semana (1=Domingo, 7=Sábado)"
+      
+      - name: is_valid_location
+        description: "Indica se as coordenadas estão dentro dos limites esperados do Rio de Janeiro"
+        tests:
+          - accepted_values:
+              values: [true]
+      
+      - name: speed_category
+        description: "Categoria de velocidade: Parado, Lento, Normal, Rápido, Desconhecido"
+        tests:
+          - accepted_values:
+              values: ['Parado', 'Lento', 'Normal', 'Rápido', 'Desconhecido']
+      
+      - name: period_of_day
+        description: "Período do dia: Manhã, Tarde, Noite, Madrugada"
+        tests:
+          - accepted_values:
+              values: ['Manhã', 'Tarde', 'Noite', 'Madrugada']
+      
+      - name: row_hash
+        description: "Hash MD5 único do registro para deduplicação"
+        tests:
+          - unique
+          - not_null
+      
+      - name: raw_data
+        description: "Dados brutos originais em formato JSON para auditoria"

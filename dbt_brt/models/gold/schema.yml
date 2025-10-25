@@ -1,0 +1,123 @@
+version: 2
+
+models:
+  - name: fct_brt_line_metrics
+    description: |
+      ### Camada Gold - Métricas Agregadas por Linha BRT
+      
+      Tabela fato contendo métricas agregadas de operação do BRT, agrupadas por:
+      - Data (particionada)
+      - Linha do BRT
+      - Período do dia
+      
+      **Casos de uso:**
+      - Dashboards executivos de monitoramento de frota
+      - Análise de performance operacional
+      - Identificação de padrões de tráfego
+      - Comparação entre linhas e períodos
+      
+      **Otimizações:**
+      - Particionada por data para queries eficientes
+      - Clusterizada por linha e período do dia
+      - Métricas pré-calculadas para consumo direto
+      
+    config:
+      partition_by:
+        field: date_partition
+        data_type: date
+      cluster_by: ['line', 'period_of_day']
+    
+    columns:
+      - name: date_partition
+        description: "Data de referência das métricas (campo de particionamento)"
+        tests:
+          - not_null
+      
+      - name: line
+        description: "Linha do BRT (ex: BRT Transoeste, BRT Transcarioca)"
+        tests:
+          - not_null
+      
+      - name: period_of_day
+        description: "Período do dia: Manhã (6-11h), Tarde (12-17h), Noite (18-23h), Madrugada (0-5h)"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Manhã', 'Tarde', 'Noite', 'Madrugada']
+      
+      - name: total_vehicles
+        description: "Total de veículos únicos observados no período"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: total_observations
+        description: "Total de observações GPS capturadas"
+        tests:
+          - not_null
+          - dbt_expectations.expect_column_values_to_be_between:
+              min_value: 0
+      
+      - name: avg_speed_kmh
+        description: "Velocidade média dos veículos em km/h"
+      
+      - name: min_speed_kmh
+        description: "Velocidade mínima observada em km/h"
+      
+      - name: max_speed_kmh
+        description: "Velocidade máxima observada em km/h"
+      
+      - name: stddev_speed_kmh
+        description: "Desvio padrão da velocidade (indicador de variabilidade)"
+      
+      - name: vehicles_stopped
+        description: "Quantidade de veículos parados (velocidade = 0)"
+      
+      - name: vehicles_slow
+        description: "Quantidade de veículos em velocidade lenta (0-20 km/h)"
+      
+      - name: vehicles_normal
+        description: "Quantidade de veículos em velocidade normal (20-50 km/h)"
+      
+      - name: vehicles_fast
+        description: "Quantidade de veículos em velocidade rápida (>50 km/h)"
+      
+      - name: avg_latitude
+        description: "Latitude média das operações (centro geográfico)"
+      
+      - name: avg_longitude
+        description: "Longitude média das operações (centro geográfico)"
+      
+      - name: first_hour
+        description: "Primeira hora de observação no período"
+      
+      - name: last_hour
+        description: "Última hora de observação no período"
+      
+      - name: processed_at
+        description: "Timestamp de quando as métricas foram processadas"
+        tests:
+          - not_null
+      
+      - name: pct_vehicles_stopped
+        description: "Percentual de veículos parados em relação ao total"
+      
+      - name: pct_vehicles_slow
+        description: "Percentual de veículos em velocidade lenta"
+      
+      - name: pct_vehicles_normal
+        description: "Percentual de veículos em velocidade normal"
+      
+      - name: pct_vehicles_fast
+        description: "Percentual de veículos em velocidade rápida"
+      
+      - name: avg_observations_per_vehicle
+        description: "Média de observações por veículo (indicador de cobertura)"
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - date_partition
+            - line
+            - period_of_day

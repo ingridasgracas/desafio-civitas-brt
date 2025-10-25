@@ -1,0 +1,28 @@
+# Prefect - Orquestração de Pipeline (versão específica solicitada)
+prefect==1.4.1
+
+# Google Cloud Platform
+google-cloud-storage==2.10.0
+google-cloud-bigquery==3.11.4
+
+# DBT
+dbt-core==1.5.0
+dbt-bigquery==1.5.0
+
+# DBT External Tables (para criar tabelas externas no BigQuery)
+# Nota: dbt-external-tables foi integrado ao dbt-bigquery a partir da v1.5+
+# Funcionalidade de tabelas externas agora é nativa no dbt-bigquery
+
+# Bibliotecas para requisições HTTP
+requests==2.31.0
+
+# Manipulação de dados
+pandas>=2.1.0
+pyarrow==14.0.2
+
+# Utilitários
+python-dotenv==1.0.0
+schedule==1.2.0
+
+# Logging e monitoramento
+loguru==0.7.0

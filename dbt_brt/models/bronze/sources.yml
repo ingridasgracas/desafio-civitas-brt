@@ -1,0 +1,58 @@
+# Configuração de tabela externa no GCS
+# Camada Bronze - Dados brutos do BRT
+# 
+# IMPORTANTE: A partir do dbt-bigquery 1.5+, tabelas externas são criadas
+# usando a configuração nativa do BigQuery, sem necessidade do pacote dbt-external-tables
+
+version: 2
+
+sources:
+  - name: brt_external
+    description: "Dados brutos do BRT capturados da API e armazenados no GCS"
+    schema: brt_dataset
+    
+    tables:
+      - name: brt_gps_raw
+        description: "Tabela externa com dados GPS dos veículos BRT"
+        
+        # Configuração de tabela externa usando dbt-bigquery nativo
+        external:
+          location: "gs://{{ var('gcs_bucket') }}/brt-data/*.csv"
+          options:
+            format: CSV
+            skip_leading_rows: 1
+            autodetect: false
+        
+        # Schema da tabela externa
+        columns:
+          - name: capture_timestamp
+            description: "Timestamp de quando os dados foram capturados pelo pipeline"
+            data_type: timestamp
+          
+          - name: vehicle_id
+            description: "Identificador único do veículo (ordem)"
+            data_type: string
+          
+          - name: line
+            description: "Linha do BRT em operação"
+            data_type: string
+          
+          - name: latitude
+            description: "Latitude da posição GPS do veículo"
+            data_type: float64
+          
+          - name: longitude
+            description: "Longitude da posição GPS do veículo"
+            data_type: float64
+          
+          - name: speed
+            description: "Velocidade do veículo em km/h"
+            data_type: float64
+          
+          - name: timestamp_gps
+            description: "Timestamp do sinal GPS transmitido pelo veículo"
+            data_type: timestamp
+          
+          - name: raw_data
+            description: "Dados brutos em formato JSON para auditoria"
+            data_type: string

@@ -488,7 +488,7 @@ Acesse: [http://localhost:4200](http://localhost:4200)
 
 -  Status de execução dos flows
 -  Histórico de runs
-- ⏱ Duração das tasks
+-  Duração das tasks
 -  Logs de erros
 
 ### DBT Docs

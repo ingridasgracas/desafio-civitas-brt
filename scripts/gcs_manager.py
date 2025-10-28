@@ -207,7 +207,7 @@ def main():
             for file in files:
                 print(f"  - {file}")
     else:
-        print("⚠ GCS não configurado. Configure as credenciais em .env")
+        print("GCS não configurado. Configure as credenciais em .env")
     
     # Limpa arquivo de teste
     os.unlink(test_file)

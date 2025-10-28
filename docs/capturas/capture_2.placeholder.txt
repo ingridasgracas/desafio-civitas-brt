@@ -1,3 +1,0 @@
-Placeholder para capture_2.png
-
-Substitua este arquivo pelo PNG real da captura de tela 2 (BigQuery: external_brt_gps_data). Salve o arquivo como `capture_2.png` no mesmo diretório.

@@ -38,10 +38,10 @@ def capture_brt_data():
     df = capture.capture_and_process()
     
     if df.empty:
-        logger.warning("⚠️ Nenhum dado capturado")
+        logger.warning("Nenhum dado capturado")
         raise SKIP("Sem dados disponíveis na API")
     
-    logger.success(f"✅ Dados capturados: {len(df)} registros")
+    logger.success(f"Dados capturados: {len(df)} registros")
     return df
 
 
@@ -51,7 +51,7 @@ def add_to_buffer(df, aggregator):
     Task: Adiciona dados ao buffer de agregação
     Retorna: Tuple (is_complete, aggregator)
     """
-    logger.info("📊 Adicionando dados ao buffer...")
+    logger.info("Adicionando dados ao buffer...")
     
     is_complete = aggregator.add_data(df)
     
@@ -70,15 +70,15 @@ def generate_csv(is_complete, aggregator):
     Retorna: Caminho do arquivo CSV ou None
     """
     if not is_complete:
-        logger.info("⏳ Buffer ainda não está completo, pulando geração de CSV")
+        logger.info("Buffer ainda não está completo, pulando geração de CSV")
         raise SKIP("Buffer incompleto")
     
-    logger.info("💾 Gerando arquivo CSV consolidado...")
+    logger.info("Gerando arquivo CSV consolidado...")
     
     csv_path = aggregator.aggregate_and_save()
     
     if csv_path:
-        logger.success(f"✅ CSV gerado: {csv_path}")
+        logger.success(f"CSV gerado: {csv_path}")
     else:
         logger.error("❌ Erro ao gerar CSV")
     
@@ -101,9 +101,9 @@ def upload_to_gcs(csv_path):
     gcs_uri = gcs_manager.upload_file(csv_path, gcs_folder='brt-data')
     
     if gcs_uri:
-        logger.success(f"✅ Upload concluído: {gcs_uri}")
+        logger.success(f"Upload concluído: {gcs_uri}")
     else:
-        logger.error("❌ Erro ao fazer upload para GCS")
+        logger.error("Erro ao fazer upload para GCS")
         raise Exception("Falha no upload para GCS")
     
     return gcs_uri
@@ -117,7 +117,7 @@ def run_dbt_external_table():
     NOTA: A partir do dbt-bigquery 1.5+, tabelas externas são criadas
     usando o comando 'dbt run --select source:*' ou via script SQL direto.
     """
-    logger.info("🔧 Criando tabela externa no BigQuery...")
+    logger.info("Criando tabela externa no BigQuery...")
     
     dbt_dir = Path(__file__).parent.parent / 'dbt_brt'
     
@@ -154,11 +154,11 @@ def run_dbt_external_table():
                     if 'Already Exists' not in str(e) and 'comment' not in str(e).lower():
                         logger.warning(f"Aviso: {e}")
         
-        logger.success("✅ Tabela externa criada/atualizada com sucesso")
+        logger.success("Tabela externa criada/atualizada com sucesso")
         
     except Exception as e:
-        logger.error(f"❌ Erro ao criar tabela externa: {e}")
-        logger.info("💡 Você pode criar manualmente usando o script:")
+        logger.error(f"Erro ao criar tabela externa: {e}")
+        logger.info("Você pode criar manualmente usando o script:")
         logger.info("   dbt_brt/models/bronze/create_external_table.sql")
         raise
 
@@ -168,7 +168,7 @@ def run_dbt_transformations():
     """
     Task: Executa modelos DBT (Silver e Gold)
     """
-    logger.info("🔄 Executando transformações DBT...")
+    logger.info("Executando transformações DBT...")
     
     dbt_dir = Path(__file__).parent.parent / 'dbt_brt'
     
@@ -182,11 +182,11 @@ def run_dbt_transformations():
             text=True
         )
         
-        logger.success("✅ Transformações DBT executadas com sucesso")
+        logger.success("Transformações DBT executadas com sucesso")
         logger.debug(result.stdout)
         
         # Gera documentação
-        logger.info("📝 Gerando documentação DBT...")
+        logger.info("Gerando documentação DBT...")
         subprocess.run(
             ['dbt', 'docs', 'generate', '--profiles-dir', '.'],
             cwd=str(dbt_dir),
@@ -194,10 +194,10 @@ def run_dbt_transformations():
             capture_output=True
         )
         
-        logger.success("✅ Documentação gerada")
+        logger.success("Documentação gerada")
         
     except subprocess.CalledProcessError as e:
-        logger.error(f"❌ Erro ao executar DBT: {e.stderr}")
+        logger.error(f"Erro ao executar DBT: {e.stderr}")
         raise
 
 
@@ -206,7 +206,7 @@ def run_dbt_tests():
     """
     Task: Executa testes de qualidade de dados
     """
-    logger.info("🧪 Executando testes de qualidade de dados...")
+    logger.info("Executando testes de qualidade de dados...")
     
     dbt_dir = Path(__file__).parent.parent / 'dbt_brt'
     
@@ -220,13 +220,13 @@ def run_dbt_tests():
         )
         
         if result.returncode == 0:
-            logger.success("✅ Todos os testes passaram")
+            logger.success("Todos os testes passaram")
         else:
-            logger.warning("⚠️ Alguns testes falharam:")
+            logger.warning("Alguns testes falharam:")
             logger.warning(result.stdout)
         
     except Exception as e:
-        logger.error(f"❌ Erro ao executar testes: {e}")
+        logger.error(f" Erro ao executar testes: {e}")
 
 
 # ==================== FLOW ====================
@@ -308,7 +308,7 @@ def main():
     # flow.register(project_name="BRT Pipeline")
     
     # OU executa localmente
-    logger.info("🚀 Iniciando BRT Data Pipeline...")
+    logger.info("Iniciando BRT Data Pipeline...")
     flow.run()
 
 

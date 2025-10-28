@@ -1,4 +1,4 @@
-# 🏗️ Arquitetura do Pipeline BRT
+#  Arquitetura do Pipeline BRT
 
 ## Visão Geral da Arquitetura Medallion
 
@@ -6,16 +6,16 @@ A arquitetura Medallion é um padrão de design para organizar dados em camadas,
 
 ## Camadas de Dados
 
-### 🥉 Camada Bronze (Raw Data)
+###  Camada Bronze (Raw Data)
 
 **Objetivo:** Armazenar dados brutos exatamente como recebidos da fonte
 
 **Características:**
-- ✅ Dados imutáveis
-- ✅ Histórico completo
-- ✅ Schema original preservado
-- ✅ Formato: CSV no GCS
-- ✅ Implementação: Tabela Externa BigQuery
+-  Dados imutáveis
+-  Histórico completo
+-  Schema original preservado
+-  Formato: CSV no GCS
+-  Implementação: Tabela Externa BigQuery
 
 **Fluxo:**
 ```
@@ -41,7 +41,7 @@ OPTIONS (
 );
 ```
 
-### 🥈 Camada Silver (Cleaned Data)
+###  Camada Silver (Cleaned Data)
 
 **Objetivo:** Dados limpos, validados e enriquecidos
 
@@ -75,16 +75,16 @@ Bronze → Validação → Deduplicação → Enriquecimento → Silver View
 - `period_of_day`: Período do dia
 - `row_hash`: Hash único MD5
 
-### 🥇 Camada Gold (Business Metrics)
+###  Camada Gold (Business Metrics)
 
 **Objetivo:** Dados agregados e otimizados para consumo analítico
 
 **Características:**
-- ✅ Métricas pré-calculadas
-- ✅ Agregações de negócio
-- ✅ Particionamento otimizado
-- ✅ Cluster para performance
-- ✅ Pronto para dashboards
+-  Métricas pré-calculadas
+-  Agregações de negócio
+-  Particionamento otimizado
+-  Cluster para performance
+-  Pronto para dashboards
 
 **Agregações:**
 1. **Dimensões:**
@@ -121,55 +121,55 @@ CLUSTER BY line, period_of_day
 ## Fluxo de Dados End-to-End
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│                    PIPELINE BRT - FLUXO COMPLETO                │
-├─────────────────────────────────────────────────────────────────┤
-│                                                                 │
-│  1️⃣ CAPTURA (Prefect Task)                                     │
-│     ├─ API BRT: jeap.rio.rj.gov.br/je-api/api/v2/gps          │
-│     ├─ Frequência: A cada 1 minuto                             │
-│     ├─ Retry: 3 tentativas com delay de 30s                    │
-│     └─ Output: DataFrame pandas                                │
-│                                                                 │
-│  2️⃣ AGREGAÇÃO (Prefect Task)                                   │
-│     ├─ Buffer em memória: 10 capturas                          │
-│     ├─ Trigger: Quando buffer completo                         │
-│     └─ Output: CSV local                                       │
-│                                                                 │
-│  3️⃣ ARMAZENAMENTO (Prefect Task)                               │
-│     ├─ Upload: CSV → GCS                                       │
-│     ├─ Bucket: gs://brt-data-civitas/brt-data/                │
-│     ├─ Retry: 2 tentativas                                     │
-│     └─ Output: URI do arquivo                                  │
-│                                                                 │
-│  4️⃣ BRONZE LAYER (DBT Operation)                               │
-│     ├─ Comando: dbt run-operation stage_external_sources       │
-│     ├─ Ação: Cria/atualiza tabela externa                      │
-│     └─ Output: brt_dataset.brt_gps_raw                         │
-│                                                                 │
-│  5️⃣ SILVER LAYER (DBT Run)                                     │
-│     ├─ Comando: dbt run --models silver.*                      │
-│     ├─ Modelo: stg_brt_gps_cleaned                             │
-│     ├─ Materialização: View                                    │
-│     └─ Output: brt_dataset_silver.stg_brt_gps_cleaned          │
-│                                                                 │
-│  6️⃣ GOLD LAYER (DBT Run)                                       │
-│     ├─ Comando: dbt run --models gold.*                        │
-│     ├─ Modelo: fct_brt_line_metrics                            │
-│     ├─ Materialização: Table (particionada + cluster)          │
-│     └─ Output: brt_dataset_gold.fct_brt_line_metrics           │
-│                                                                 │
-│  7️⃣ QUALIDADE (DBT Test)                                       │
-│     ├─ Comando: dbt test                                       │
-│     ├─ Testes: Schema + relacionamentos + valores              │
-│     └─ Output: Relatório de qualidade                          │
-│                                                                 │
-│  8️⃣ DOCUMENTAÇÃO (DBT Docs)                                    │
-│     ├─ Comando: dbt docs generate                              │
-│     ├─ Ação: Gera site de documentação                         │
-│     └─ Persiste: Descrições no BigQuery (+persist_docs)        │
-│                                                                 │
-└─────────────────────────────────────────────────────────────────┘
+
+                    PIPELINE BRT - FLUXO COMPLETO                
+
+                                                                 
+  1⃣ CAPTURA (Prefect Task)                                     
+      API BRT: jeap.rio.rj.gov.br/je-api/api/v2/gps          
+      Frequência: A cada 1 minuto                             
+      Retry: 3 tentativas com delay de 30s                    
+      Output: DataFrame pandas                                
+                                                                 
+  2⃣ AGREGAÇÃO (Prefect Task)                                   
+      Buffer em memória: 10 capturas                          
+      Trigger: Quando buffer completo                         
+      Output: CSV local                                       
+                                                                 
+  3⃣ ARMAZENAMENTO (Prefect Task)                               
+      Upload: CSV → GCS                                       
+      Bucket: gs://brt-data-civitas/brt-data/                
+      Retry: 2 tentativas                                     
+      Output: URI do arquivo                                  
+                                                                 
+  4⃣ BRONZE LAYER (DBT Operation)                               
+      Comando: dbt run-operation stage_external_sources       
+      Ação: Cria/atualiza tabela externa                      
+      Output: brt_dataset.brt_gps_raw                         
+                                                                 
+  5⃣ SILVER LAYER (DBT Run)                                     
+      Comando: dbt run --models silver.*                      
+      Modelo: stg_brt_gps_cleaned                             
+      Materialização: View                                    
+      Output: brt_dataset_silver.stg_brt_gps_cleaned          
+                                                                 
+  6⃣ GOLD LAYER (DBT Run)                                       
+      Comando: dbt run --models gold.*                        
+      Modelo: fct_brt_line_metrics                            
+      Materialização: Table (particionada + cluster)          
+      Output: brt_dataset_gold.fct_brt_line_metrics           
+                                                                 
+  7⃣ QUALIDADE (DBT Test)                                       
+      Comando: dbt test                                       
+      Testes: Schema + relacionamentos + valores              
+      Output: Relatório de qualidade                          
+                                                                 
+  8⃣ DOCUMENTAÇÃO (DBT Docs)                                    
+      Comando: dbt docs generate                              
+      Ação: Gera site de documentação                         
+      Persiste: Descrições no BigQuery (+persist_docs)        
+                                                                 
+
 ```
 
 ## Componentes Técnicos
@@ -177,44 +177,44 @@ CLUSTER BY line, period_of_day
 ### Orquestração: Prefect v1.4.1
 
 **Por que Prefect?**
-- ✅ Interface web intuitiva
-- ✅ Retry automático com backoff
-- ✅ Monitoramento em tempo real
-- ✅ Scheduling flexível
-- ✅ Logs centralizados
+-  Interface web intuitiva
+-  Retry automático com backoff
+-  Monitoramento em tempo real
+-  Scheduling flexível
+-  Logs centralizados
 
 **Estrutura do Flow:**
 ```python
 Flow("BRT Data Pipeline")
-  ├─ Task: capture_brt_data()
-  ├─ Task: add_to_buffer()
-  ├─ Task: generate_csv()
-  ├─ Task: upload_to_gcs()
-  ├─ Task: run_dbt_external_table()
-  ├─ Task: run_dbt_transformations()
-  └─ Task: run_dbt_tests()
+   Task: capture_brt_data()
+   Task: add_to_buffer()
+   Task: generate_csv()
+   Task: upload_to_gcs()
+   Task: run_dbt_external_table()
+   Task: run_dbt_transformations()
+   Task: run_dbt_tests()
 ```
 
 ### Transformação: DBT
 
 **Por que DBT?**
-- ✅ SQL como linguagem de transformação
-- ✅ Testes de qualidade built-in
-- ✅ Documentação automática
-- ✅ Lineage de dados
-- ✅ Versionamento de modelos
+-  SQL como linguagem de transformação
+-  Testes de qualidade built-in
+-  Documentação automática
+-  Lineage de dados
+-  Versionamento de modelos
 
 **Estrutura de Modelos:**
 ```
 dbt_brt/models/
-├── bronze/
-│   └── sources.yml          # Definição de tabelas externas
-├── silver/
-│   ├── stg_brt_gps_cleaned.sql
-│   └── schema.yml
-└── gold/
-    ├── fct_brt_line_metrics.sql
-    └── schema.yml
+ bronze/
+    sources.yml          # Definição de tabelas externas
+ silver/
+    stg_brt_gps_cleaned.sql
+    schema.yml
+ gold/
+     fct_brt_line_metrics.sql
+     schema.yml
 ```
 
 ### Armazenamento: GCP
@@ -236,31 +236,31 @@ dbt_brt/models/
 ### 1. Por que Tabela Externa para Bronze?
 
 **Vantagens:**
-- ✅ Separação de armazenamento e computação
-- ✅ Custo reduzido (storage em GCS é mais barato)
-- ✅ Flexibilidade para processar dados brutos
-- ✅ Histórico completo sem duplicação
+-  Separação de armazenamento e computação
+-  Custo reduzido (storage em GCS é mais barato)
+-  Flexibilidade para processar dados brutos
+-  Histórico completo sem duplicação
 
 **Trade-offs:**
-- ⚠️ Performance de query inferior a tabelas nativas
-- ⚠️ Requer GCS além do BigQuery
+-  Performance de query inferior a tabelas nativas
+-  Requer GCS além do BigQuery
 
 ### 2. Por que View para Silver?
 
 **Vantagens:**
-- ✅ Sempre reflete dados mais recentes
-- ✅ Sem custo de armazenamento adicional
-- ✅ Queries otimizadas pelo BigQuery
+-  Sempre reflete dados mais recentes
+-  Sem custo de armazenamento adicional
+-  Queries otimizadas pelo BigQuery
 
 **Trade-offs:**
-- ⚠️ Recomputação a cada query
+-  Recomputação a cada query
 
 ### 3. Por que Tabela Particionada para Gold?
 
 **Vantagens:**
-- ✅ Performance otimizada para queries por data
-- ✅ Custo reduzido (scan apenas partições necessárias)
-- ✅ Ideal para dashboards com filtros temporais
+-  Performance otimizada para queries por data
+-  Custo reduzido (scan apenas partições necessárias)
+-  Ideal para dashboards com filtros temporais
 
 **Configuração:**
 ```sql
@@ -326,11 +326,11 @@ models:
 
 ### Alertas Recomendados
 
-- ⚠️ API indisponível por > 5 minutos
-- ⚠️ Buffer não completado em 15 minutos
-- ⚠️ Upload GCS falhou
-- ⚠️ Testes DBT falharam
-- ⚠️ Latência > 2 horas entre captura e disponibilização Gold
+-  API indisponível por > 5 minutos
+-  Buffer não completado em 15 minutos
+-  Upload GCS falhou
+-  Testes DBT falharam
+-  Latência > 2 horas entre captura e disponibilização Gold
 
 ## Escalabilidade
 
@@ -364,4 +364,4 @@ models:
 
 ---
 
-**Desenvolvido seguindo as melhores práticas de Data Engineering** 🚀
+**Desenvolvido seguindo as melhores práticas de Data Engineering** 

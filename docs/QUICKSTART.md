@@ -1,17 +1,17 @@
-# ⚡ Guia de Início Rápido - Pipeline BRT
+#  Guia de Início Rápido - Pipeline BRT
 
 Este guia fornece instruções passo a passo para colocar o pipeline em funcionamento o mais rápido possível.
 
-## ⏱️ Tempo Estimado: 30 minutos
+## ⏱ Tempo Estimado: 30 minutos
 
-## 📋 Checklist Pré-execução
+##  Checklist Pré-execução
 
 - [ ] Python 3.8+ instalado
 - [ ] Docker Desktop instalado e rodando
 - [ ] Conta Google Cloud Platform criada
 - [ ] Git instalado
 
-## 🚀 Passos Rápidos
+##  Passos Rápidos
 
 ### 1. Clone e Configure (5 min)
 
@@ -114,7 +114,7 @@ python scripts/brt_api_capture.py
 
 **Esperado:** 
 ```
-✓ Dados capturados: X registros
+ Dados capturados: X registros
   vehicle_id | line | latitude | longitude | speed
 ```
 
@@ -126,7 +126,7 @@ python scripts/gcs_manager.py
 
 **Esperado:**
 ```
-✓ Upload bem-sucedido: gs://brt-data-civitas/test/...
+ Upload bem-sucedido: gs://brt-data-civitas/test/...
 ```
 
 #### Teste 3: DBT Connection
@@ -138,7 +138,7 @@ dbt debug
 
 **Esperado:**
 ```
-✓ Connection test: OK
+ Connection test: OK
 ```
 
 ### 7. Execute Pipeline Completo (3 min)
@@ -149,15 +149,15 @@ python pipeline/brt_flow.py
 ```
 
 **O que acontece:**
-1. ✅ Captura dados da API BRT
-2. ✅ Adiciona ao buffer (precisa rodar 10x para gerar CSV)
-3. ✅ Gera CSV (após 10 capturas)
-4. ✅ Upload para GCS
-5. ✅ Cria tabela externa BigQuery
-6. ✅ Executa transformações Silver e Gold
-7. ✅ Executa testes de qualidade
+1.  Captura dados da API BRT
+2.  Adiciona ao buffer (precisa rodar 10x para gerar CSV)
+3.  Gera CSV (após 10 capturas)
+4.  Upload para GCS
+5.  Cria tabela externa BigQuery
+6.  Executa transformações Silver e Gold
+7.  Executa testes de qualidade
 
-## ✅ Verificação de Sucesso
+##  Verificação de Sucesso
 
 ### Verifique no Prefect UI
 
@@ -191,7 +191,7 @@ SELECT COUNT(*) FROM `brt_dataset_silver.stg_brt_gps_cleaned` LIMIT 10;
 SELECT * FROM `brt_dataset_gold.fct_brt_line_metrics` ORDER BY date_partition DESC LIMIT 10;
 ```
 
-## 🎯 Próximos Passos
+##  Próximos Passos
 
 ### Executar Pipeline Continuamente
 
@@ -223,7 +223,7 @@ Use BigQuery + Looker Studio:
    - Velocidade média por período
    - Mapa de calor de operações
 
-## 🐛 Problemas Comuns
+##  Problemas Comuns
 
 ### Erro: "Permission denied" no GCP
 
@@ -260,7 +260,7 @@ cd dbt_brt
 dbt run-operation stage_external_sources
 ```
 
-## 📊 Dashboard de Monitoramento
+##  Dashboard de Monitoramento
 
 Após executar, você terá:
 
@@ -279,7 +279,7 @@ Após executar, você terá:
 - Queries SQL
 - Análises ad-hoc
 
-## 💡 Dicas
+##  Dicas
 
 1. **Execute múltiplas vezes:**
    - Pipeline precisa rodar 10x para gerar primeiro CSV
@@ -299,7 +299,7 @@ Após executar, você terá:
    - CSVs são salvos localmente em `data/`
    - GCS mantém histórico completo
 
-## 🎓 Recursos Adicionais
+##  Recursos Adicionais
 
 - [Documentação Completa](../README.md)
 - [Arquitetura Detalhada](./ARQUITETURA.md)
@@ -309,6 +309,6 @@ Após executar, você terá:
 
 ---
 
-**Pronto! Seu pipeline está funcionando! 🎉**
+**Pronto! Seu pipeline está funcionando! **
 
 Se encontrar problemas, consulte a seção de Troubleshooting no README principal ou abra uma issue no GitHub.

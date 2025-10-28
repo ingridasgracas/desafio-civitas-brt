@@ -1,4 +1,4 @@
-# 🔧 Configuração Google Cloud Platform
+#  Configuração Google Cloud Platform
 
 ## Passo 1: Criar Projeto GCP
 
@@ -162,15 +162,15 @@ os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = './config/gcp-credentials.json'
 # Testa Storage
 storage_client = storage.Client(project='brt-pipeline-civitas')
 bucket = storage_client.bucket('brt-data-civitas')
-print(f"✓ Bucket acessível: {bucket.name}")
+print(f" Bucket acessível: {bucket.name}")
 
 # Testa BigQuery
 bq_client = bigquery.Client(project='brt-pipeline-civitas')
 dataset_ref = bq_client.dataset('brt_dataset')
 dataset = bq_client.get_dataset(dataset_ref)
-print(f"✓ Dataset acessível: {dataset.dataset_id}")
+print(f" Dataset acessível: {dataset.dataset_id}")
 
-print("\n✅ Configuração GCP OK!")
+print("\n Configuração GCP OK!")
 ```
 
 Execute:
@@ -289,6 +289,6 @@ gcloud services enable bigquery.googleapis.com storage.googleapis.com
 
 ---
 
-**Configuração GCP completa! ✅**
+**Configuração GCP completa! **
 
 Próximo passo: [Voltar ao Guia de Início Rápido](./QUICKSTART.md)

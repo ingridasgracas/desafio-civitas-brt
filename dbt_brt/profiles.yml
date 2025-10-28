@@ -11,7 +11,7 @@ brt_pipeline:
       dataset: brt_dataset
       threads: 4
       timeout_seconds: 300
-      location: southamerica-east1
+      location: US
       priority: interactive
       keyfile: "{{ env_var('GCP_CREDENTIALS_PATH') }}"
     

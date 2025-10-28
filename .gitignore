@@ -5,6 +5,7 @@ __pycache__/
 
 # Virtual environments
 venv/
+venv_new/
 env/
 ENV/
 
@@ -13,19 +14,22 @@ ENV/
 
 # Google Cloud credentials
 config/*.json
-!config/config.example.json
+!config/.gitkeep
 
-# Data files
+# Data files (todos os CSVs e dados processados)
 data/*.csv
-data/raw/
-data/bronze/
+!data/example_brt_consolidated.csv
+data/bronze/*.csv
+data/bronze_consolidated/*.csv
 data/silver/
 data/gold/
+data_output/
 
 # DBT
 dbt_brt/target/
 dbt_brt/dbt_packages/
 dbt_brt/logs/
+dbt_brt/package-lock.yml
 
 # Prefect
 .prefect/
@@ -44,15 +48,19 @@ Thumbs.db
 *.log
 logs/
 
-# Docker (não usado)
-docker-compose.yml
+# Docker
 docker-compose.override.yml
-.dockerignore
 
-# Arquivos temporários
-setup.ps1
-INSTALL_NOTES.md
-PROJETO_SUMMARY.md
-SETUP_GUIDE.md
-CHECKLIST_ENTREGA.md
-test_gcp_config.py
+# Arquivos temporários e de desenvolvimento
+*.tmp
+*.bak
+test_*.py
+check_*.py
+*_BACKUP.*
+CHANGELOG.md
+EXECUCAO_RAPIDA.md
+EXECUTAR_AGORA.md
+GUIA_*.md
+LIMPEZA_PROJETO.md
+RELATORIO_FINAL.md
+STATUS_FINAL_MELHORIAS.md

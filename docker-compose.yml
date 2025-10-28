@@ -1,0 +1,50 @@
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: prefect
+      POSTGRES_USER: prefect
+      POSTGRES_PASSWORD: prefect_password
+    volumes:
+      - prefect_db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  prefect_server:
+    image: prefecthq/prefect:1.4.1-python3.10
+    environment:
+      PREFECT__SERVER__DATABASE__CONNECTION_URL: postgresql+psycopg2://prefect:prefect_password@postgres:5432/prefect
+      PREFECT__SERVER__HOST: 0.0.0.0
+      PREFECT__SERVER__PORT: 4200
+    ports:
+      - "4200:4200"
+    depends_on:
+      - postgres
+    command: prefect server start
+
+  prefect_agent:
+    image: prefecthq/prefect:1.4.1-python3.10
+    environment:
+      PREFECT__BACKEND: server
+      PREFECT__SERVER__HOST: http://prefect_server
+      PREFECT__SERVER__PORT: 4200
+      PREFECT__LOGGING__LEVEL: INFO
+      GOOGLE_APPLICATION_CREDENTIALS: /opt/prefect/config/gcp-credentials.json
+    volumes:
+      - .:/opt/prefect/project
+      - ./config:/opt/prefect/config:ro
+      - ./logs:/opt/prefect/logs
+    working_dir: /opt/prefect/project
+    depends_on:
+      - prefect_server
+    command: >
+      bash -c "
+        echo 'Aguardando Prefect Server iniciar...' &&
+        sleep 10 &&
+        prefect backend server &&
+        prefect agent local start --label ingrid
+      "
+    restart: unless-stopped
+
+volumes:
+  prefect_db_data:

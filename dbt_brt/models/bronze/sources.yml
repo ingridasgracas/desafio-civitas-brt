@@ -9,7 +9,7 @@ version: 2
 sources:
   - name: brt_external
     description: "Dados brutos do BRT capturados da API e armazenados no GCS"
-    schema: brt_dataset
+    schema: brt_dataset_bronze
     
     tables:
       - name: brt_gps_raw
@@ -17,11 +17,10 @@ sources:
         
         # Configuração de tabela externa usando dbt-bigquery nativo
         external:
-          location: "gs://{{ var('gcs_bucket') }}/brt-data/*.csv"
+          location: "gs://brt-data-bucket/bronze/*.csv"
           options:
             format: CSV
             skip_leading_rows: 1
-            autodetect: false
         
         # Schema da tabela externa
         columns:
@@ -50,8 +49,20 @@ sources:
             data_type: float64
           
           - name: timestamp_gps
-            description: "Timestamp do sinal GPS transmitido pelo veículo"
-            data_type: timestamp
+            description: "Timestamp do sinal GPS transmitido pelo veículo (milissegundos)"
+            data_type: int64
+          
+          - name: placa
+            description: "Placa do veículo"
+            data_type: string
+          
+          - name: sentido
+            description: "Sentido do trajeto (ida/volta)"
+            data_type: string
+          
+          - name: trajeto
+            description: "Descrição completa do trajeto"
+            data_type: string
           
           - name: raw_data
             description: "Dados brutos em formato JSON para auditoria"

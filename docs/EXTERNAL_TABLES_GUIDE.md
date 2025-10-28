@@ -1,10 +1,10 @@
-# 🔧 Guia Rápido: Criação de Tabelas Externas no BigQuery
+#  Guia Rápido: Criação de Tabelas Externas no BigQuery
 
 ## Contexto
 
 **Mudança importante:** O pacote `dbt-external-tables` foi descontinuado. A partir do `dbt-bigquery 1.5+`, as tabelas externas são criadas usando funcionalidades nativas.
 
-## ✅ Solução Implementada
+##  Solução Implementada
 
 ### Método 1: Via Pipeline Prefect (Recomendado)
 
@@ -60,7 +60,7 @@ bq mk \
   brt-pipeline-civitas:brt_dataset.brt_gps_raw
 ```
 
-## 🧪 Verificação
+##  Verificação
 
 ### 1. Verificar se tabela existe
 
@@ -93,7 +93,7 @@ ORDER BY capture_timestamp DESC
 LIMIT 10;
 ```
 
-## 📝 Sintaxe DBT Atualizada
+##  Sintaxe DBT Atualizada
 
 Arquivo: `dbt_brt/models/bronze/sources.yml`
 
@@ -122,7 +122,7 @@ sources:
           # ... demais colunas
 ```
 
-## ❓ Troubleshooting
+##  Troubleshooting
 
 ### Erro: "Table not found"
 
@@ -149,13 +149,13 @@ sources:
 capture_timestamp,vehicle_id,line,latitude,longitude,speed,timestamp_gps,raw_data
 ```
 
-## 📚 Referências
+##  Referências
 
 - [BigQuery External Tables](https://cloud.google.com/bigquery/docs/external-tables)
 - [dbt-bigquery External Config](https://docs.getdbt.com/reference/resource-properties/external)
 - [BigQuery bq CLI](https://cloud.google.com/bigquery/docs/bq-command-line-tool)
 
-## ✅ Checklist
+##  Checklist
 
 - [ ] Bucket GCS criado e com CSVs
 - [ ] Dataset BigQuery criado (`brt_dataset`)

@@ -1,0 +1,3 @@
+Placeholder para capture_3.png
+
+Substitua este arquivo pelo PNG real da captura de tela 3 (BigQuery: stg_brt_gps_cleaned). Salve o arquivo as `capture_3.png` no mesmo diretório.

@@ -1,28 +1,83 @@
-# Prefect - Orquestração de Pipeline (versão específica solicitada)
+# ==========================================
+# PIPELINE BRT CIVITAS - Python 3.10.11 (Padrão CIVITAS)
+# ==========================================
+# 
+# IMPORTANTE: Este projeto segue o padrão CIVITAS que usa Python 3.10
+# para garantir compatibilidade com Prefect 1.4.1 e DBT
+# Todas as versões testadas e validadas com Python 3.10.11
+
+# =================
+# ORQUESTRAÇÃO
+# =================
+# Prefect - Orquestração (versão específica do desafio)
 prefect==1.4.1
 
-# Google Cloud Platform
-google-cloud-storage==2.10.0
-google-cloud-bigquery==3.11.4
+# =================
+# GOOGLE CLOUD PLATFORM
+# =================
+# Versões testadas e estáveis com Python 3.10
+google-cloud-storage==2.8.0
+google-cloud-bigquery==3.4.2
+google-auth==2.17.3
+google-cloud-core==2.3.2
+google-api-core==2.11.0
+google-resumable-media==2.4.1
 
-# DBT
-dbt-core==1.5.0
-dbt-bigquery==1.5.0
+# =================
+# DBT - DATA BUILD TOOL
+# =================
+# Versões compatíveis Python 3.10 - Testadas
+dbt-core==1.4.9
+dbt-bigquery==1.4.3
 
-# DBT External Tables (para criar tabelas externas no BigQuery)
-# Nota: dbt-external-tables foi integrado ao dbt-bigquery a partir da v1.5+
-# Funcionalidade de tabelas externas agora é nativa no dbt-bigquery
+# =================
+# MANIPULAÇÃO DE DADOS
+# =================
+# Versões estáveis e testadas Python 3.10
+pandas==1.5.3
+numpy==1.24.3
+pyarrow==11.0.0
 
-# Bibliotecas para requisições HTTP
-requests==2.31.0
+# =================
+# HTTP E NETWORKING
+# =================
+requests==2.28.2
+urllib3==1.26.15
 
-# Manipulação de dados
-pandas>=2.1.0
-pyarrow==14.0.2
-
-# Utilitários
+# =================
+# UTILITÁRIOS
+# =================
 python-dotenv==1.0.0
 schedule==1.2.0
-
-# Logging e monitoramento
 loguru==0.7.0
+
+# =================
+# COMPATIBILIDADE PYTHON 3.10
+# =================
+typing-extensions==4.5.0
+setuptools==67.6.1
+wheel==0.40.0
+pip==23.0.1
+
+# =================
+# DEPENDÊNCIAS ESPECÍFICAS PREFECT 1.4.1
+# =================
+# Versões fixadas para evitar conflitos
+click==8.1.3
+cloudpickle==2.2.1
+croniter==1.3.8
+distributed==2023.3.2.1
+marshmallow==3.19.0
+marshmallow-oneofschema==3.0.1
+msgpack==1.0.5
+pendulum==2.1.2
+tabulate==0.9.0
+toml==0.10.2
+
+# =================
+# DEPENDÊNCIAS DBT ESPECÍFICAS
+# =================
+agate==1.6.3
+Jinja2==3.1.2
+sqlparse==0.4.3
+packaging==23.0

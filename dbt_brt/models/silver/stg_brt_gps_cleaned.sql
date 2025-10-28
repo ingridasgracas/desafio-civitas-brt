@@ -35,7 +35,7 @@ cleaned_data AS (
         
         -- Timestamps
         CAST(capture_timestamp AS TIMESTAMP) AS capture_timestamp,
-        TIMESTAMP_MILLIS(SAFE_CAST(timestamp_gps AS INT64)) AS gps_timestamp,
+        TIMESTAMP_MILLIS(timestamp_gps) AS gps_timestamp,
         
         -- Geolocalização
         CAST(latitude AS FLOAT64) AS latitude,

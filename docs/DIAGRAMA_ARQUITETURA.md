@@ -1,4 +1,4 @@
-# 🏗️ Arquitetura do Pipeline BRT - Diagrama Completo
+#  Arquitetura do Pipeline BRT - Diagrama Completo
 
 ```mermaid
 ---
@@ -14,18 +14,18 @@ flowchart TB
     classDef api fill:#28a745,stroke:#1e7e34,stroke-width:2px,color:#fff
     
     %% API BRT
-    API["🚌 API BRT<br/>jeap.rio.rj.gov.br/je-api/api/v2/gps"]:::api
+    API[" API BRT<br/>jeap.rio.rj.gov.br/je-api/api/v2/gps"]:::api
     
     %% Prefect Flow
-    subgraph PREFECT["🔄 Prefect Flow - Orquestração"]
+    subgraph PREFECT[" Prefect Flow - Orquestração"]
         direction TB
-        T1["📡 Task: Captura Dados<br/>(minuto a minuto)"]:::prefect
-        T2["📊 Task: Buffer Agregação<br/>(10 capturas)"]:::prefect
-        T3["💾 Task: Gera CSV<br/>(10 minutos de dados)"]:::prefect
-        T4["☁️ Task: Upload GCS"]:::prefect
-        T5["🔧 Task: DBT External Table"]:::prefect
-        T6["🔄 Task: DBT Transformações"]:::prefect
-        T7["🧪 Task: DBT Testes"]:::prefect
+        T1[" Task: Captura Dados<br/>(minuto a minuto)"]:::prefect
+        T2[" Task: Buffer Agregação<br/>(10 capturas)"]:::prefect
+        T3[" Task: Gera CSV<br/>(10 minutos de dados)"]:::prefect
+        T4[" Task: Upload GCS"]:::prefect
+        T5[" Task: DBT External Table"]:::prefect
+        T6[" Task: DBT Transformações"]:::prefect
+        T7[" Task: DBT Testes"]:::prefect
         
         T1 --> T2
         T2 --> T3
@@ -36,31 +36,31 @@ flowchart TB
     end
     
     %% Storage Local
-    LOCAL["💻 Storage Local<br/>data/bronze/<br/>data/silver/"]
+    LOCAL[" Storage Local<br/>data/bronze/<br/>data/silver/"]
     
     %% Google Cloud Platform
-    subgraph GCP["☁️ Google Cloud Platform"]
+    subgraph GCP[" Google Cloud Platform"]
         direction TB
         
         %% Cloud Storage
-        GCS["📦 Google Cloud Storage<br/>gs://brt-data-civitas/brt-data/"]:::gcp
+        GCS[" Google Cloud Storage<br/>gs://brt-data-civitas/brt-data/"]:::gcp
         
         %% BigQuery - Bronze
-        subgraph BRONZE["🥉 CAMADA BRONZE - Raw Data"]
+        subgraph BRONZE[" CAMADA BRONZE - Raw Data"]
             direction LR
-            BQ_EXT["📋 Tabela Externa<br/>brt_gps_raw<br/><br/>• Dados brutos<br/>• Schema fixo<br/>• 8 colunas"]:::bronze
+            BQ_EXT[" Tabela Externa<br/>brt_gps_raw<br/><br/>• Dados brutos<br/>• Schema fixo<br/>• 8 colunas"]:::bronze
         end
         
         %% BigQuery - Silver
-        subgraph SILVER["🥈 CAMADA SILVER - Cleaned Data"]
+        subgraph SILVER[" CAMADA SILVER - Cleaned Data"]
             direction LR
-            BQ_SILVER["🔍 View<br/>stg_brt_gps_cleaned<br/><br/>• Validação GPS<br/>• Deduplicação<br/>• Enriquecimento<br/>• Categorização"]:::silver
+            BQ_SILVER[" View<br/>stg_brt_gps_cleaned<br/><br/>• Validação GPS<br/>• Deduplicação<br/>• Enriquecimento<br/>• Categorização"]:::silver
         end
         
         %% BigQuery - Gold
-        subgraph GOLD["🥇 CAMADA GOLD - Business Metrics"]
+        subgraph GOLD[" CAMADA GOLD - Business Metrics"]
             direction LR
-            BQ_GOLD["📊 Tabela Particionada<br/>fct_brt_line_metrics<br/><br/>• Métricas agregadas<br/>• KPIs calculados<br/>• Particionada por data<br/>• Cluster: linha + período"]:::gold
+            BQ_GOLD[" Tabela Particionada<br/>fct_brt_line_metrics<br/><br/>• Métricas agregadas<br/>• KPIs calculados<br/>• Particionada por data<br/>• Cluster: linha + período"]:::gold
         end
         
         GCS --> BQ_EXT
@@ -69,10 +69,10 @@ flowchart TB
     end
     
     %% Dashboards
-    DASH["📈 Dashboards<br/>Looker Studio / Metabase<br/><br/>• Monitoramento em tempo real<br/>• Análise de performance<br/>• Identificação de padrões"]
+    DASH[" Dashboards<br/>Looker Studio / Metabase<br/><br/>• Monitoramento em tempo real<br/>• Análise de performance<br/>• Identificação de padrões"]
     
     %% Documentação
-    DOCS["📚 Documentação DBT<br/>dbt docs serve<br/><br/>• Lineage de dados<br/>• Schema documentado<br/>• Testes de qualidade"]
+    DOCS[" Documentação DBT<br/>dbt docs serve<br/><br/>• Lineage de dados<br/>• Schema documentado<br/>• Testes de qualidade"]
     
     %% Fluxo principal
     API ==>|"HTTP GET<br/>a cada 1 min"| T1
@@ -89,9 +89,9 @@ flowchart TB
     BQ_GOLD ==>|"Query SQL"| DASH
     
     %% Anotações
-    NOTE1["⏱️ Frequência:<br/>• Captura: 1 min<br/>• Agregação: 10 min<br/>• CSV diário: ~144 arquivos"]
-    NOTE2["💰 Custo:<br/>• GCS: Grátis (<1GB)<br/>• BigQuery: Grátis (<10GB)<br/>• Total: $0/mês"]
-    NOTE3["✅ Qualidade:<br/>• 27+ testes DBT<br/>• Validação GPS<br/>• Deduplicação<br/>• Documentação 100%"]
+    NOTE1["⏱ Frequência:<br/>• Captura: 1 min<br/>• Agregação: 10 min<br/>• CSV diário: ~144 arquivos"]
+    NOTE2[" Custo:<br/>• GCS: Grátis (<1GB)<br/>• BigQuery: Grátis (<10GB)<br/>• Total: $0/mês"]
+    NOTE3[" Qualidade:<br/>• 27+ testes DBT<br/>• Validação GPS<br/>• Deduplicação<br/>• Documentação 100%"]
     
     %% Posicionamento das notas
     NOTE1 -.-> PREFECT
@@ -99,7 +99,7 @@ flowchart TB
     NOTE3 -.-> GOLD
 ```
 
-## 📊 Detalhamento dos Componentes
+##  Detalhamento dos Componentes
 
 ### 1. API BRT (Fonte de Dados)
 - **Endpoint:** `https://jeap.rio.rj.gov.br/je-api/api/v2/gps`
@@ -168,78 +168,78 @@ flowchart TB
   - Resultados de testes
   - Propagação para BigQuery (+persist_docs)
 
-## 🔄 Fluxo de Dados Detalhado
+##  Fluxo de Dados Detalhado
 
 ```
-┌─────────────────────────────────────────────────────────────────┐
-│ Minuto 1-10: COLETA                                             │
-├─────────────────────────────────────────────────────────────────┤
-│ 10:00 → API → DataFrame (100 veículos) → Buffer [1/10]         │
-│ 10:01 → API → DataFrame (102 veículos) → Buffer [2/10]         │
-│ 10:02 → API → DataFrame ( 98 veículos) → Buffer [3/10]         │
-│ ...                                                             │
-│ 10:09 → API → DataFrame (101 veículos) → Buffer [10/10] ✓      │
-└─────────────────────────────────────────────────────────────────┘
 
-┌─────────────────────────────────────────────────────────────────┐
-│ Minuto 10: AGREGAÇÃO & UPLOAD                                  │
-├─────────────────────────────────────────────────────────────────┤
-│ Buffer completo → Concatena 10 DataFrames                       │
-│ → CSV: brt_data_20251024_101000.csv (~1000 registros)          │
-│ → Upload: gs://brt-data-civitas/brt-data/                      │
-└─────────────────────────────────────────────────────────────────┘
+ Minuto 1-10: COLETA                                             
 
-┌─────────────────────────────────────────────────────────────────┐
-│ TRANSFORMAÇÃO DBT                                               │
-├─────────────────────────────────────────────────────────────────┤
-│ 🥉 Bronze: Cria/atualiza tabela externa                        │
-│    → brt_dataset.brt_gps_raw (aponta para GCS)                 │
-│                                                                 │
-│ 🥈 Silver: Executa view de limpeza                             │
-│    → brt_dataset_silver.stg_brt_gps_cleaned                    │
-│    → Valida GPS, deduplica, enriquece                          │
-│    → ~950 registros válidos (50 removidos)                     │
-│                                                                 │
-│ 🥇 Gold: Executa agregação                                     │
-│    → brt_dataset_gold.fct_brt_line_metrics                     │
-│    → 12 linhas (3 linhas × 4 períodos do dia)                  │
-│    → Métricas + KPIs prontos para dashboard                    │
-└─────────────────────────────────────────────────────────────────┘
+ 10:00 → API → DataFrame (100 veículos) → Buffer [1/10]         
+ 10:01 → API → DataFrame (102 veículos) → Buffer [2/10]         
+ 10:02 → API → DataFrame ( 98 veículos) → Buffer [3/10]         
+ ...                                                             
+ 10:09 → API → DataFrame (101 veículos) → Buffer [10/10]       
 
-┌─────────────────────────────────────────────────────────────────┐
-│ QUALIDADE & DOCUMENTAÇÃO                                        │
-├─────────────────────────────────────────────────────────────────┤
-│ 🧪 Testes: 27+ testes executados                               │
-│    → Schema validation ✓                                       │
-│    → Uniqueness checks ✓                                       │
-│    → Value ranges ✓                                            │
-│                                                                 │
-│ 📚 Docs: Documentação atualizada                               │
-│    → Lineage graph gerado                                      │
-│    → Descrições propagadas para BigQuery                       │
-└─────────────────────────────────────────────────────────────────┘
+
+
+ Minuto 10: AGREGAÇÃO & UPLOAD                                  
+
+ Buffer completo → Concatena 10 DataFrames                       
+ → CSV: brt_data_20251024_101000.csv (~1000 registros)          
+ → Upload: gs://brt-data-civitas/brt-data/                      
+
+
+
+ TRANSFORMAÇÃO DBT                                               
+
+  Bronze: Cria/atualiza tabela externa                        
+    → brt_dataset.brt_gps_raw (aponta para GCS)                 
+                                                                 
+  Silver: Executa view de limpeza                             
+    → brt_dataset_silver.stg_brt_gps_cleaned                    
+    → Valida GPS, deduplica, enriquece                          
+    → ~950 registros válidos (50 removidos)                     
+                                                                 
+  Gold: Executa agregação                                     
+    → brt_dataset_gold.fct_brt_line_metrics                     
+    → 12 linhas (3 linhas × 4 períodos do dia)                  
+    → Métricas + KPIs prontos para dashboard                    
+
+
+
+ QUALIDADE & DOCUMENTAÇÃO                                        
+
+  Testes: 27+ testes executados                               
+    → Schema validation                                        
+    → Uniqueness checks                                        
+    → Value ranges                                             
+                                                                 
+  Docs: Documentação atualizada                               
+    → Lineage graph gerado                                      
+    → Descrições propagadas para BigQuery                       
+
 ```
 
-## 💡 Decisões de Arquitetura
+##  Decisões de Arquitetura
 
 ### Por que Tabela Externa (Bronze)?
-- ✅ Custo reduzido (storage em GCS mais barato)
-- ✅ Separação de storage e compute
-- ✅ Flexibilidade para processar dados brutos
-- ⚠️ Trade-off: Performance de query inferior
+-  Custo reduzido (storage em GCS mais barato)
+-  Separação de storage e compute
+-  Flexibilidade para processar dados brutos
+-  Trade-off: Performance de query inferior
 
 ### Por que View (Silver)?
-- ✅ Sempre reflete dados mais recentes
-- ✅ Sem custo de armazenamento adicional
-- ✅ Queries otimizadas pelo BigQuery
-- ⚠️ Trade-off: Recomputação a cada query
+-  Sempre reflete dados mais recentes
+-  Sem custo de armazenamento adicional
+-  Queries otimizadas pelo BigQuery
+-  Trade-off: Recomputação a cada query
 
 ### Por que Tabela Particionada (Gold)?
-- ✅ Performance otimizada (scan apenas partições necessárias)
-- ✅ Custo reduzido em queries filtradas por data
-- ✅ Ideal para dashboards com análises temporais
+-  Performance otimizada (scan apenas partições necessárias)
+-  Custo reduzido em queries filtradas por data
+-  Ideal para dashboards com análises temporais
 
-## 📈 Métricas de Performance
+##  Métricas de Performance
 
 - **Latência total:** ~2-3 minutos (captura → disponibilidade Gold)
 - **Volume diário:** ~144 CSVs, ~14.400-28.800 registros
@@ -248,4 +248,4 @@ flowchart TB
 
 ---
 
-**Arquitetura projetada para: Escalabilidade, Confiabilidade, Custo-efetividade** 🚀
+**Arquitetura projetada para: Escalabilidade, Confiabilidade, Custo-efetividade** 

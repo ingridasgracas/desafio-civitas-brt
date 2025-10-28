@@ -1,12 +1,7 @@
-# Dependências DBT
-# Nota: A partir do dbt-bigquery 1.5+, as funcionalidades de tabelas externas
-# foram integradas nativamente. Não é mais necessário instalar dbt-external-tables.
-# 
-# Para criar tabelas externas, use a macro nativa:
-# {{ source('external', 'table_name') }}
-# 
-# Se precisar de funcionalidades adicionais, pode instalar:
-# packages:
-#   - package: dbt-labs/dbt_utils
-#     version: 1.1.1
+packages:
+  - package: dbt-labs/dbt_external_tables
+    version: 0.8.7
+  - package: dbt-labs/dbt_utils
+    version: 1.1.1
+
 

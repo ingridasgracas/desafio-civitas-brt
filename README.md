@@ -1,13 +1,13 @@
-# 🚌 Desafio CIVITAS - Pipeline BRT Rio de Janeiro
+#  Desafio CIVITAS - Pipeline BRT Rio de Janeiro
 
 [![Prefect](https://img.shields.io/badge/Prefect-1.4.1-blue)](https://docs.prefect.io/)
-[![DBT](https://img.shields.io/badge/dbt-1.5.0-orange)](https://docs.getdbt.com/)
+[![DBT](https://img.shields.io/badge/dbt-1.4.9-orange)](https://docs.getdbt.com/)
 [![BigQuery](https://img.shields.io/badge/BigQuery-GCP-blue)](https://cloud.google.com/bigquery)
-[![Python](https://img.shields.io/badge/Python-3.8+-green)](https://www.python.org/)
+[![Python](https://img.shields.io/badge/Python-3.10.11-green)](https://www.python.org/)
 
 Pipeline de dados ELT para captura, armazenamento e transformação de dados GPS em tempo real dos veículos BRT do Rio de Janeiro, seguindo a **Arquitetura Medallion** (Bronze → Silver → Gold).
 
-## 📋 Índice
+##  Índice
 
 - [Visão Geral](#-visão-geral)
 - [Arquitetura](#-arquitetura)
@@ -22,7 +22,7 @@ Pipeline de dados ELT para captura, armazenamento e transformação de dados GPS
 - [Monitoramento](#-monitoramento)
 - [Troubleshooting](#-troubleshooting)
 
-## 🎯 Visão Geral
+##  Visão Geral
 
 Este projeto implementa um pipeline completo de dados que:
 
@@ -36,65 +36,89 @@ Este projeto implementa um pipeline completo de dados que:
 ### Arquitetura Medallion
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     ARQUITETURA MEDALLION                   │
-├─────────────────────────────────────────────────────────────┤
-│                                                             │
-│  📡 API BRT                                                 │
-│      ↓                                                      │
-│  🥉 BRONZE (Raw Data)                                       │
-│      • Captura minuto a minuto                              │
-│      • CSV no GCS                                           │
-│      • Tabela externa BigQuery                              │
-│      ↓                                                      │
-│  🥈 SILVER (Cleaned Data)                                   │
-│      • Validação de coordenadas                             │
-│      • Remoção de duplicatas                                │
-│      • Campos derivados                                     │
-│      • Views no BigQuery                                    │
-│      ↓                                                      │
-│  🥇 GOLD (Business Metrics)                                 │
-│      • Métricas agregadas                                   │
-│      • KPIs por linha e período                             │
-│      • Tabelas particionadas                                │
-│      • Pronto para dashboards                               │
-│                                                             │
-└─────────────────────────────────────────────────────────────┘
+
+                     ARQUITETURA MEDALLION                   
+
+                                                             
+   API BRT                                                 
+      ↓                                                      
+   BRONZE (Raw Data)                                       
+      • Captura minuto a minuto                              
+      • CSV no GCS                                           
+      • Tabela externa BigQuery                              
+      ↓                                                      
+   SILVER (Cleaned Data)                                   
+      • Validação de coordenadas                             
+      • Remoção de duplicatas                                
+      • Campos derivados                                     
+      • Views no BigQuery                                    
+      ↓                                                      
+   GOLD (Business Metrics)                                 
+      • Métricas agregadas                                   
+      • KPIs por linha e período                             
+      • Tabelas particionadas                                
+      • Pronto para dashboards                               
+                                                             
+
 ```
 
-## 🏗️ Arquitetura
+##  Arquitetura
 
 ```mermaid
 flowchart TB
-    A[API BRT] -->|Captura minuto a minuto| B[Prefect Flow]
+    A[API BRT] -->|Captura minuto a minuto| B[Prefect Tasks + State Handlers]
     B -->|Agrega 10 min| C[CSV Local]
     C -->|Upload| D[Google Cloud Storage]
-    D -->|Tabela Externa| E[BigQuery - Bronze]
-    E -->|DBT Transform| F[BigQuery - Silver]
-    F -->|DBT Aggregate| G[BigQuery - Gold]
-    G -->|Dashboards| H[Data Visualization]
+    D -->|External Table| E[BigQuery - Bronze]
+    E -->|DBT Silver| F[BigQuery - Silver]
+    F -->|DBT Gold| G[BigQuery - Gold]
+    G -->|Analytics| H[Dashboards & Reports]
     
-    I[Prefect Server] -.->|Orquestra| B
-    J[Docker Agent] -.->|Executa| B
+    I[Docker Compose] -->|PostgreSQL| J[Prefect Server]
+    I -->|Agent| K[Prefect Agent]
+    J -->|Orchestration| B
+    K -->|Execution| B
+    
+    L[State Handlers] -->|Credentials| B
+    L -->|Skip Concurrent| B
+    L -->|Notifications| M[Discord/Slack]
 ```
 
-## 🛠️ Tecnologias
+**Fluxo de Execução Seguindo Padrão CIVITAS**:
+1. **Infraestrutura**: Docker Compose sobe Prefect Server + PostgreSQL + Agent
+2. **Orquestração**: Prefect Server coordena execução com state handlers
+3. **Extract**: Tasks capturam dados da API BRT (resiliente com retry)
+4. **Buffer**: Agregação inteligente em janelas de 10 minutos
+5. **Load**: Upload automatizado para GCS com validação
+6. **Transform**: DBT executa transformações Bronze → Silver → Gold
+7. **Quality**: Testes automáticos validam integridade dos dados
+8. **Monitor**: State handlers injetam credenciais e notificam falhas
 
-- **Orquestração**: Prefect 1.4.1
-- **Transformação**: DBT (Data Build Tool) 1.5.0
+##  Tecnologias
+
+- **Orquestração**: Prefect 1.4.1 Local Agent + PostgreSQL (Docker)
+- **Transformação**: DBT 1.4.9 + dbt-bigquery 1.4.3
 - **Cloud**: Google Cloud Platform (GCS + BigQuery)
-- **Containerização**: Docker & Docker Compose
-- **Linguagem**: Python 3.8+
-- **Logs**: Loguru
+- **Linguagem**: Python 3.10.11
+- **Containerização**: Docker + Docker Compose
+- **Logs**: Python Logging + Prefect Built-in
 
-## 📦 Pré-requisitos
+> **Nota Técnica**: Este projeto foi desenvolvido e testado com **Python 3.10.11**, **Prefect 1.4.1**, **DBT 1.4.9** e **dbt-bigquery 1.4.3** seguindo as especificações do desafio CIVITAS.
+
+##  Pré-requisitos
 
 ### Software Necessário
 
-- Python 3.8 ou superior
-- Docker & Docker Compose
+- **Python 3.10.11** (versão validada e testada)
+- Docker e Docker Compose (para Prefect Server)
 - Git
-- Conta Google Cloud Platform (nível gratuito disponível)
+- Conta Google Cloud Platform
+
+> **Python 3.10.11 Validado**: Este projeto foi completamente testado com Python 3.10.11 garantindo compatibilidade com:
+> - Prefect 1.4.1 (orquestração)
+> - DBT 1.4.9 + dbt-bigquery 1.4.3 (transformações)
+> - marshmallow 3.26.1, pendulum 2.1.2, numpy 1.24.4 (dependências críticas)
+> - Google Cloud BigQuery + Storage SDKs
 
 ### Conta GCP
 
@@ -107,7 +131,7 @@ flowchart TB
    - Storage Admin
 4. Baixar arquivo JSON de credenciais
 
-## 🚀 Instalação
+##  Instalação
 
 ### 1. Clone o Repositório
 
@@ -116,23 +140,57 @@ git clone https://github.com/seu-usuario/desafio-civitas-brt.git
 cd desafio-civitas-brt
 ```
 
-### 2. Crie Ambiente Virtual Python
+### 2. Verificar/Instalar Python 3.10
 
 ```bash
-# Windows (PowerShell)
-python -m venv venv
+# Verificar versão atual
+python --version
+
+# Se não for 3.10.x, opções de instalação:
+
+# OPÇÃO 1: Download direto (Windows)
+# https://www.python.org/downloads/release/python-31012/
+
+# OPÇÃO 2: Usando pyenv (Linux/Mac/Windows WSL)
+# pyenv install 3.10.12
+# pyenv local 3.10.12
+
+# OPÇÃO 3: Usando conda
+# conda create -n brt-pipeline python=3.10
+# conda activate brt-pipeline
+
+# OPÇÃO 4: Linux (Ubuntu/Debian)
+# sudo apt update
+# sudo apt install python3.10 python3.10-venv python3.10-dev
+```
+
+### 3. Crie Ambiente Virtual Python 3.10.11
+
+```bash
+# Windows (PowerShell) - TESTADO E VALIDADO
+# Instalar Python 3.10 se não tiver:
+winget install Python.Python.3.10
+
+# Criar ambiente virtual
+py -3.10 -m venv venv
 .\venv\Scripts\Activate.ps1
 
 # Linux/Mac
-python3 -m venv venv
+python3.10 -m venv venv
 source venv/bin/activate
+
+# Verificar versão no ambiente virtual
+python --version  # DEVE mostrar Python 3.10.11
 ```
 
-### 3. Instale Dependências
+### 4. Instale Dependências
 
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
+
+# Verificar instalação do Prefect
+prefect version  # Deve mostrar 1.4.1
 ```
 
 ### 4. Configure Credenciais GCP
@@ -149,7 +207,7 @@ mkdir -p config
 cp /caminho/para/suas-credenciais.json config/gcp-credentials.json
 ```
 
-## ⚙️ Configuração
+##  Configuração
 
 ### 1. Variáveis de Ambiente
 
@@ -212,40 +270,53 @@ dbt deps
 cd ..
 ```
 
-## 🎬 Execução
+##  Execução
 
-### Opção 1: Prefect Server + Docker Agent (Recomendado)
+### Execução com Docker (Padrão CIVITAS)
 
-#### 1. Inicie os Serviços Docker
+#### 1. Inicie a Infraestrutura
 
 ```bash
+# Sobe Prefect Server + PostgreSQL + Agent
 docker-compose up -d
+
+# Aguarde ~60 segundos para inicialização completa
+docker-compose ps
 ```
 
-Aguarde alguns segundos para os serviços iniciarem.
-
-#### 2. Acesse o Prefect UI
+#### 2. Acesse a Interface
 
 Abra no navegador: [http://localhost:4200](http://localhost:4200)
 
 #### 3. Registre o Flow
 
 ```bash
-python pipeline/brt_flow.py register
+# Ambiente de produção (execução minuto a minuto)
+python pipeline/brt_flow.py --register
+
+# Ambiente de desenvolvimento (execução horária)  
+python pipeline/brt_flow.py --register --dev
+
+# Ambiente de teste (dados mock)
+python pipeline/brt_flow.py --register --test
 ```
 
-#### 4. Execute o Flow via UI
+#### 4. Monitore a Execução
 
 No Prefect UI:
-- Navegue até "Flows"
-- Selecione "BRT Data Pipeline - Medallion Architecture"
-- Clique em "Quick Run"
+- Navegue até **"Flows"**
+- Selecione **"CIVITAS: BRT Data Pipeline"**
+- Clique em **"Quick Run"** para teste manual
+- Monitore execuções automáticas baseadas no schedule
 
-### Opção 2: Execução Local (Desenvolvimento)
+### Execução Local (Desenvolvimento/Debug)
 
 ```bash
-# Execute o flow diretamente
-python pipeline/brt_flow.py
+# Execução única para desenvolvimento
+python pipeline/brt_flow.py --run --dev
+
+# Execução única para teste
+python pipeline/brt_flow.py --run --test
 ```
 
 ### Teste Individual de Componentes
@@ -287,54 +358,57 @@ dbt docs generate
 dbt docs serve
 ```
 
-## 📁 Estrutura do Projeto
+##  Estrutura do Projeto
 
 ```
 desafio-civitas-brt/
-├── 📄 README.md                    # Este arquivo
-├── 📄 requirements.txt             # Dependências Python
-├── 📄 docker-compose.yml           # Configuração Docker
-├── 📄 .env.example                 # Exemplo de variáveis de ambiente
-├── 📄 .gitignore
-│
-├── 📂 pipeline/                    # Fluxos Prefect
-│   ├── __init__.py
-│   └── brt_flow.py                 # Flow principal
-│
-├── 📂 scripts/                     # Scripts Python
-│   ├── __init__.py
-│   ├── brt_api_capture.py          # Captura da API
-│   ├── brt_data_aggregator.py      # Agregação de dados
-│   └── gcs_manager.py              # Gerenciamento GCS
-│
-├── 📂 dbt_brt/                     # Projeto DBT
-│   ├── dbt_project.yml             # Configuração DBT
-│   ├── profiles.yml                # Perfis de conexão
-│   ├── packages.yml                # Dependências DBT
-│   │
-│   └── 📂 models/                  # Modelos DBT
-│       ├── 📂 bronze/              # Camada Bronze
-│       │   └── sources.yml         # Tabelas externas
-│       │
-│       ├── 📂 silver/              # Camada Silver
-│       │   ├── stg_brt_gps_cleaned.sql
-│       │   └── schema.yml
-│       │
-│       └── 📂 gold/                # Camada Gold
-│           ├── fct_brt_line_metrics.sql
-│           └── schema.yml
-│
-├── 📂 config/                      # Configurações
-│   └── gcp-credentials.json        # Credenciais GCP (não versionado)
-│
-├── 📂 data/                        # Dados locais
-│   ├── bronze/                     # Dados brutos
-│   └── silver/                     # Dados processados
-│
-└── 📂 docs/                        # Documentação adicional
+  README.md                    # Este arquivo
+  requirements.txt             # Dependências Python
+  docker-compose.yml           # Configuração Docker
+  .env.example                 # Exemplo de variáveis de ambiente
+  .gitignore
+
+  pipeline/                    # Fluxos Prefect (Padrão CIVITAS)
+    __init__.py
+    brt_flow.py                 # Flow principal
+    tasks.py                    # Tasks modulares
+    schedules.py                # Configurações de agendamento
+    state_handlers.py           # Handlers para credenciais e notificações
+
+  scripts/                     # Scripts Python
+    __init__.py
+    brt_api_capture.py          # Captura da API
+    brt_data_aggregator.py      # Agregação de dados
+    gcs_manager.py              # Gerenciamento GCS
+
+  dbt_brt/                     # Projeto DBT
+    dbt_project.yml             # Configuração DBT
+    profiles.yml                # Perfis de conexão
+    packages.yml                # Dependências DBT
+   
+     models/                  # Modelos DBT
+         bronze/              # Camada Bronze
+           sources.yml         # Tabelas externas
+       
+         silver/              # Camada Silver
+           stg_brt_gps_cleaned.sql
+           schema.yml
+       
+         gold/                # Camada Gold
+            fct_brt_line_metrics.sql
+            schema.yml
+
+  config/                      # Configurações
+    gcp-credentials.json        # Credenciais GCP (não versionado)
+
+  data/                        # Dados locais
+    bronze/                     # Dados brutos
+    silver/                     # Dados processados
+
+  docs/                        # Documentação adicional
 ```
 
-## 📊 Modelos DBT
+##  Modelos DBT
 
 ### Camada Bronze
 
@@ -346,22 +420,22 @@ desafio-civitas-brt/
 ### Camada Silver
 
 **`stg_brt_gps_cleaned`** (View)
-- ✅ Validação de coordenadas GPS
-- ✅ Remoção de duplicatas
-- ✅ Campos derivados (data, hora, dia da semana)
-- ✅ Categorização de velocidade
-- ✅ Identificação de período do dia
+-  Validação de coordenadas GPS
+-  Remoção de duplicatas
+-  Campos derivados (data, hora, dia da semana)
+-  Categorização de velocidade
+-  Identificação de período do dia
 
 ### Camada Gold
 
 **`fct_brt_line_metrics`** (Tabela Particionada)
-- 📈 Métricas agregadas por linha e período
-- 📊 KPIs operacionais
-- 🎯 Otimizada para dashboards
-- 📅 Particionada por data
-- 🔍 Clusterizada por linha e período
+-  Métricas agregadas por linha e período
+-  KPIs operacionais
+-  Otimizada para dashboards
+-  Particionada por data
+-  Clusterizada por linha e período
 
-## 🧪 Testes de Qualidade
+##  Testes de Qualidade
 
 O projeto implementa testes DBT em múltiplos níveis:
 
@@ -406,16 +480,16 @@ cd dbt_brt
 dbt test
 ```
 
-## 📈 Monitoramento
+##  Monitoramento
 
 ### Prefect UI
 
 Acesse: [http://localhost:4200](http://localhost:4200)
 
-- ✅ Status de execução dos flows
-- 📊 Histórico de runs
-- ⏱️ Duração das tasks
-- ❌ Logs de erros
+-  Status de execução dos flows
+-  Histórico de runs
+- ⏱ Duração das tasks
+-  Logs de erros
 
 ### DBT Docs
 
@@ -427,10 +501,10 @@ dbt docs serve
 
 Acesse: [http://localhost:8080](http://localhost:8080)
 
-- 📚 Documentação de modelos
-- 🌳 Lineage de dados
-- 📋 Schema das tabelas
-- ✅ Resultados dos testes
+-  Documentação de modelos
+-  Lineage de dados
+-  Schema das tabelas
+-  Resultados dos testes
 
 ### Logs do Pipeline
 
@@ -441,7 +515,7 @@ Logs detalhados são salvos automaticamente com Loguru:
 tail -f logs/brt_pipeline.log
 ```
 
-## 🐛 Troubleshooting
+##  Troubleshooting
 
 ### Problema: Erro de autenticação GCP
 
@@ -484,7 +558,7 @@ bq ls
 - Teste manualmente: https://jeap.rio.rj.gov.br/je-api/api/v2/gps
 - Aguarde alguns minutos (API pode ter rate limiting)
 
-## 📝 Commits Convencionais
+##  Commits Convencionais
 
 Este projeto segue o padrão de [Conventional Commits](https://www.conventionalcommits.org/):
 
@@ -497,7 +571,7 @@ git commit -m "test: adiciona testes de qualidade DBT"
 git commit -m "refactor: melhora estrutura do agregador"
 ```
 
-## 🤝 Contribuindo
+##  Contribuindo
 
 1. Fork o projeto
 2. Crie uma branch para sua feature (`git checkout -b feat/nova-feature`)
@@ -505,11 +579,11 @@ git commit -m "refactor: melhora estrutura do agregador"
 4. Push para a branch (`git push origin feat/nova-feature`)
 5. Abra um Pull Request
 
-## 📄 Licença
+##  Licença
 
 Este projeto foi desenvolvido como parte do desafio técnico para a vaga de Engenheiro de Dados na CIVITAS.
 
-## 📧 Contato
+##  Contato
 
 **Desenvolvido por:** [Seu Nome]
 **Email:** seu.email@exemplo.com
@@ -517,7 +591,7 @@ Este projeto foi desenvolvido como parte do desafio técnico para a vaga de Enge
 
 ---
 
-## 🔗 Links Úteis
+##  Links Úteis
 
 - [Prefect v1 Docs](https://docs-v1.prefect.io/)
 - [DBT Docs](https://docs.getdbt.com/)
@@ -528,4 +602,4 @@ Este projeto foi desenvolvido como parte do desafio técnico para a vaga de Enge
 
 ---
 
-**Feito com ❤️ para CIVITAS**
+**Feito com  para CIVITAS**

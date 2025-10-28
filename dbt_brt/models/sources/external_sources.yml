@@ -1,0 +1,77 @@
+version: 2
+
+sources:
+  - name: gcs_bronze
+    description: Tabelas externas apontando para arquivos CSV no Google Cloud Storage (camada Bronze)
+    database: brt-pipeline-476423
+    schema: brt_dataset_bronze
+    loader: gcs
+    
+    tables:
+      - name: external_brt_gps_data
+        description: Dados brutos de GPS do BRT capturados da API (arquivos de 10 minutos no GCS)
+        external:
+          location: "gs://brt-data-bucket/bronze/*.csv"
+          options:
+            format: CSV
+            skip_leading_rows: 1
+            allow_jagged_rows: true
+            allow_quoted_newlines: true
+          partitions:
+            - name: data_partition
+              data_type: date
+              expression: "PARSE_DATE('%Y%m%d', REGEXP_EXTRACT(_FILE_NAME, r'brt_consolidated_(\\d{8})_'))"
+        columns:
+          - name: timestamp
+            description: Data e hora da captura do sinal GPS
+            data_type: timestamp
+          - name: vehicle_id
+            description: Identificador único do veículo
+            data_type: string
+          - name: line
+            description: Linha do BRT
+            data_type: string
+          - name: latitude
+            description: Latitude da posição GPS
+            data_type: float64
+          - name: longitude
+            description: Longitude da posição GPS
+            data_type: float64
+          - name: speed
+            description: Velocidade do veículo em km/h
+            data_type: float64
+          - name: gps_timestamp
+            description: Timestamp original do GPS
+            data_type: int64
+          - name: placa
+            description: Placa do veículo
+            data_type: string
+          - name: sentido
+            description: Sentido do trajeto (ida/volta)
+            data_type: string
+          - name: trajeto
+            description: Descrição completa do trajeto
+            data_type: string
+          - name: raw_data
+            description: Dados brutos em formato JSON
+            data_type: string
+
+  # Silver source comentado temporariamente - será criado após dbt run
+  # - name: gcs_silver
+  #   description: Tabelas externas apontando para arquivos CSV processados no GCS (camada Silver)
+  #   database: brt-pipeline-476423
+  #   schema: brt_dataset_silver
+  #   loader: gcs
+  #   
+  #   tables:
+  #     - name: external_brt_gps_cleaned
+  #       description: Dados de GPS limpos e validados
+  #       external:
+  #         location: "gs://brt-data-bucket/silver/*.csv"
+  #         options:
+  #           format: CSV
+  #           skip_leading_rows: 1
+  #         partitions:
+  #           - name: data_partition
+  #             data_type: date
+  #             expression: "PARSE_DATE('%Y%m%d', REGEXP_EXTRACT(_FILE_NAME, r'brt_silver_(\\d{8})_'))"

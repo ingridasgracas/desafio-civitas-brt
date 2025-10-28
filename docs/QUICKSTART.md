@@ -2,7 +2,7 @@
 
 Este guia fornece instruções passo a passo para colocar o pipeline em funcionamento o mais rápido possível.
 
-## ⏱ Tempo Estimado: 30 minutos
+## Tempo Estimado: 30 minutos
 
 ##  Checklist Pré-execução
 

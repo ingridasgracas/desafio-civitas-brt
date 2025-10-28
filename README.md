@@ -583,12 +583,6 @@ git commit -m "refactor: melhora estrutura do agregador"
 
 Este projeto foi desenvolvido como parte do desafio técnico para a vaga de Engenheiro de Dados na CIVITAS.
 
-##  Contato
-
-**Desenvolvido por:** [Seu Nome]
-**Email:** seu.email@exemplo.com
-**LinkedIn:** [Seu LinkedIn]
-
 ---
 
 ##  Links Úteis
@@ -602,4 +596,3 @@ Este projeto foi desenvolvido como parte do desafio técnico para a vaga de Enge
 
 ---
 
-**Feito com  para CIVITAS**
